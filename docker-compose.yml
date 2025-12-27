@@ -1,0 +1,116 @@
+version: '3.8'
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: start-dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-keycloak
+    networks:
+      - mini-projet-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/master"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  postgres-keycloak:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=keycloak
+    ports:
+      - "5433:5432"
+    networks:
+      - mini-projet-net
+
+  product-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=productdb
+      - POSTGRES_USER=product
+      - POSTGRES_PASSWORD=product
+    ports:
+      - "5434:5432"
+    networks:
+      - mini-projet-net
+
+  order-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=orderdb
+      - POSTGRES_USER=order
+      - POSTGRES_PASSWORD=order
+    ports:
+      - "5435:5432"
+    networks:
+      - mini-projet-net
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8888:8888"
+    depends_on:
+      - product-service
+      - order-service
+      - keycloak
+    networks:
+      - mini-projet-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  product-service:
+    build: ./product-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - product-db
+      - keycloak
+    networks:
+      - mini-projet-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  order-service:
+    build: ./order-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - order-db
+      - keycloak
+    networks:
+      - mini-projet-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - mini-projet-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+networks:
+  mini-projet-net:
+    driver: bridge

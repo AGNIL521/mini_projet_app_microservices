@@ -1,0 +1,6 @@
+com\miniprojet\productservice\ProductServiceApplication.class
+com\miniprojet\productservice\controller\ProductController.class
+com\miniprojet\productservice\config\SecurityConfig.class
+com\miniprojet\productservice\entity\Product.class
+com\miniprojet\productservice\logging\LoggingAspect.class
+com\miniprojet\productservice\repository\ProductRepository.class
