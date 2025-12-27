@@ -1,5 +1,4 @@
 # Ignore Python virtual environments
 venv/
 
-# Ignore Python dependency file
-requirements.txt
+
