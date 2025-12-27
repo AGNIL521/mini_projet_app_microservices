@@ -47,9 +47,12 @@ Mini-Projet is a secure, modular, and containerized e-commerce application built
 - **Logging**: Centralized, includes User IDs, tracks access/errors
 
 ## Infrastructure
-- **Docker Compose**: Orchestrates all services
-- **Keycloak**: Runs as a container, pre-configured for roles
-- **PostgreSQL**: Dedicated container per service
+- **Docker Compose**: Orchestrates all services with proper networking and volumes
+- **Keycloak**: Version 23.0.0, pre-configured realm `miniprojet-realm`
+- **PostgreSQL**: Dedicated containers with persistent volumes
+  - `postgres-product`: Product service database
+  - `postgres-order`: Order service database
+- **Networking**: Custom bridge network `miniprojet-net` for service communication
 
 ## Getting Started
 1. Clone the repo
@@ -58,9 +61,15 @@ Mini-Projet is a secure, modular, and containerized e-commerce application built
    docker-compose up --build
    ```
 3. Access Keycloak at [http://localhost:8080](http://localhost:8080)
+   - Realm: `miniprojet-realm`
    - Username: `admin` (ADMIN), `client` (CLIENT)
    - Password: same as username
 4. Frontend at [http://localhost:3000](http://localhost:3000)
+5. API Gateway at [http://localhost:8888](http://localhost:8888)
+
+### Troubleshooting
+- **Port 8080 already in use**: Stop any services using port 8080 (e.g., other Java applications) before running docker-compose
+- **Service startup order**: Services depend on Keycloak and databases - ensure they start completely
 
 ## API Endpoints
 - **API Gateway**: [http://localhost:8888]
@@ -78,9 +87,26 @@ Mini-Projet is a secure, modular, and containerized e-commerce application built
   - `POST /` (CLIENT): Create order (stock checked)
 
 ## Environment & Configuration
-- All services configured in `docker-compose.yml`
-- Keycloak realm auto-import via `keycloak-realm-export.json`
-- Health checks: `/actuator/health` on all Spring Boot services
+### Docker Compose Services
+- **Keycloak**: Uses realm `miniprojet-realm` with ADMIN/CLIENT roles
+- **Product Service**: 
+  - Database: PostgreSQL on `postgres-product:5432`
+  - Environment: `SPRING_PROFILES_ACTIVE=docker`
+- **Order Service**: 
+  - Database: PostgreSQL on `postgres-order:5432`
+  - Environment: `SPRING_PROFILES_ACTIVE=docker`
+- **API Gateway**: JWT validation with Keycloak issuer URI
+- **Frontend**: React app with API URL pointing to Gateway
+
+### Security Configuration
+All services configured with:
+- `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/miniprojet-realm`
+- Role-based access control at service and gateway levels
+
+### Database Configuration
+- Product DB: `product_db` with user `user_product`
+- Order DB: `order_db` with user `user_order`
+- Persistent volumes for data retention
 
 ## Notes
 - All inter-service calls propagate JWT for authorization
