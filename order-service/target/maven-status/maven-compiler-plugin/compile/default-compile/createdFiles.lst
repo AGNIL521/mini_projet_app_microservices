@@ -1,0 +1,9 @@
+com\miniprojet\orderservice\OrderServiceApplication.class
+com\miniprojet\orderservice\config\RestTemplateConfig.class
+com\miniprojet\orderservice\logging\LoggingAspect.class
+com\miniprojet\orderservice\entity\OrderItem.class
+com\miniprojet\orderservice\controller\OrderController.class
+com\miniprojet\orderservice\model\Product.class
+com\miniprojet\orderservice\repository\OrderRepository.class
+com\miniprojet\orderservice\entity\Order.class
+com\miniprojet\orderservice\config\SecurityConfig.class

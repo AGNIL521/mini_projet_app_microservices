@@ -1,2 +1,3 @@
+com\miniprojet\productservice\ProductIntegrationTest.class
 com\miniprojet\productservice\controller\ProductControllerTest.class
 com\miniprojet\productservice\config\TestSecurityConfig.class
